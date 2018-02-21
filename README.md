@@ -10,8 +10,4 @@ exe
 
 desc
 
-: redis-cluster nodes
-
-: master node : 3 EA
-
-: slave node : 3 EA
+: redis-cluster nodes (3 master + 3 slaves)
