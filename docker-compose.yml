@@ -1,0 +1,76 @@
+version: '2'
+services:
+  redis-node1:
+    image: redisclustercompose_redis-cluster
+    build: ./redis-cluster
+    ports: 
+     - "7000:6379"
+     - "17000:16379"
+    labels:
+     - redis
+  redis-node2:
+    image: redisclustercompose_redis-cluster
+    build: ./redis-cluster
+    ports: 
+     - "7001:6379"
+     - "17001:16379"
+    labels:
+     - redis
+  redis-node3:
+    image: redisclustercompose_redis-cluster
+    build: ./redis-cluster
+    ports: 
+     - "7002:6379"
+     - "17002:16379"
+    labels:
+     - redis
+  redis-node4:
+    image: redisclustercompose_redis-cluster
+    build: ./redis-cluster
+    ports: 
+     - "7003:6379"
+     - "17003:16379"
+    labels:
+     - redis
+  redis-node5:
+    image: redisclustercompose_redis-cluster
+    build: ./redis-cluster
+    ports: 
+     - "7004:6379"
+     - "17004:16379"
+    labels:
+     - redis
+  redis-node6:
+    image: redisclustercompose_redis-cluster
+    build: ./redis-cluster
+    ports: 
+     - "7005:6379"
+     - "17005:16379"
+    labels:
+     - redis
+  rediscluster:
+    image: docker
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+    command: |
+      sh -c "
+        sleep 2
+        cluster_hosts=
+        docker ps -q -f label=redis |
+        {
+          while read x; do
+            private_ip=$$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $$x)
+            cluster_hosts=\"$$cluster_hosts $$private_ip:6379\"
+          done
+          echo $$cluster_hosts
+          docker run --net redisclustercompose_default --rm ruby sh -c \"gem install redis && wget http://download.redis.io/redis-stable/src/redis-trib.rb && (echo 'yes' | ruby redis-trib.rb create --replicas 1 $$cluster_hosts)\"
+        }
+      "
+    depends_on:
+     - redis-node1
+     - redis-node2
+     - redis-node3
+     - redis-node4
+     - redis-node5
+     - redis-node6
+     
